@@ -4,11 +4,8 @@ import com.au.me.model.Transaction;
 import com.au.me.model.TransactionType;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -21,24 +18,23 @@ import static com.au.me.util.Utils.DATE_TIME_FORMATTER;
 
 public class CsvFileReaderServiceImpl implements CsvFileReaderService {
 
-    public static final String TRANSACTIONS_CSV_FILE_PATH = "transaction.txt";
+    public static final String TRANSACTIONS_CSV_FILE_PATH = "transaction.csv";
     private static final Logger LOGGER = Logger.getLogger(CsvFileReaderServiceImpl.class.getName());
 
     @Override
     public List<Transaction> processInput() {
         List<Transaction> transactions = new ArrayList<>();
         List<List<String>> records = new ArrayList<>();
-
-        try (InputStream inputStream = getClass().getResourceAsStream(TRANSACTIONS_CSV_FILE_PATH)) {
-            try (BufferedReader br = new BufferedReader(new InputStreamReader(inputStream))) {
-                String line;
+        ClassLoader classLoader = this.getClass().getClassLoader();
+        try (FileReader fr = new FileReader(classLoader.getResource(TRANSACTIONS_CSV_FILE_PATH).getFile())) {
+            String line = "";
+            try (BufferedReader br = new BufferedReader(fr)) {
                 while ((line = br.readLine()) != null) {
                     String[] values = line.split(",");
                     records.add(Arrays.asList(values));
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
             LOGGER.log(Level.SEVERE, "File not available in resource path");
         }
         for (List<String> lineRecord : records) {

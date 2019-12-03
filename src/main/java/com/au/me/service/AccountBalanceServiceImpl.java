@@ -26,35 +26,35 @@ public class AccountBalanceServiceImpl implements AccountBalanceService {
 
         final List<Transaction> transactionsInBetween = new ArrayList<>();
         transactions.stream().forEach(transaction -> {
-            if (transaction.getFromAccount().equalsIgnoreCase(accountId) || transaction.getToAccount().equalsIgnoreCase(accountId)) {
+            if (transaction.getFromAccount().contentEquals(accountId) || transaction.getToAccount().contentEquals(accountId)) {
                 if ((transaction.getCreatedAt().isAfter(fromDate) || transaction.getCreatedAt().isEqual(fromDate)) && (transaction.getCreatedAt().isBefore(toDate) || transaction.getCreatedAt().isEqual(toDate))) {
                     transactionsInBetween.add(transaction);
                 }
             }
         });
 
-        Pair<BigDecimal, Integer> balanceTuple = Pair.with(getBalance(transactions, accountId), transactions.size());
+        Pair<BigDecimal, Integer> balanceTuple = Pair.with(getBalance(transactionsInBetween, accountId), transactionsInBetween.size());
         return balanceTuple;
     }
 
     private BigDecimal getBalance(List<Transaction> transactions, final String accountId) {
 
-        final BigDecimal balance = BigDecimal.ZERO;
-        transactions.forEach(transaction -> {
-            if (transaction.getToAccount().equalsIgnoreCase(accountId)) {
+         BigDecimal balance = new BigDecimal("0");
+        for(Transaction transaction : transactions) {
+            if (transaction.getFromAccount().contentEquals(accountId)) {
                 if (transaction.getTransactionType() == TransactionType.PAYMENT) {
-                    balance.add(transaction.getAmount().negate());
+                    balance = balance.add(transaction.getAmount().negate());
                 } else {
-                    balance.add(transaction.getAmount());
+                    balance = balance.add(transaction.getAmount());
                 }
             } else {
                 if (transaction.getTransactionType() == TransactionType.REVERSAL) {
-                    balance.add(transaction.getAmount());
+                    balance = balance.add(transaction.getAmount());
                 } else {
-                    balance.add(transaction.getAmount().negate());
+                    balance = balance.add(transaction.getAmount().negate());
                 }
             }
-        });
+        }
         return balance;
     }
 }
