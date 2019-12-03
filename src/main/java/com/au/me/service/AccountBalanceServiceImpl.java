@@ -11,11 +11,10 @@ import java.util.List;
 
 public class AccountBalanceServiceImpl implements AccountBalanceService {
 
-    CsvFileReaderService csvFileReaderService = new CsvFileReaderServiceImpl();
+
 
     @Override
-    public Pair<BigDecimal, Integer> getAccountBalance(String accountId, LocalDateTime fromDate, LocalDateTime toDate) {
-        List<Transaction> transactions = csvFileReaderService.processInput();
+    public Pair<BigDecimal, Integer> getAccountBalance( final List<Transaction> transactions, final String accountId, final LocalDateTime fromDate, final LocalDateTime toDate) {
         transactions.sort((t1, t2) -> {
             if (t1.getCreatedAt().isAfter(t2.getCreatedAt())) {
                 return 1;
